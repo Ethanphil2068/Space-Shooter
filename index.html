@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Shooter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="menuScreen" class="screen">
+        <h1>Space Shooter</h1>
+        <button id="playButton">Play</button>
+        <button id="shopButton">Shop</button>
+    </div>
+
+    <div id="gameScreen" class="screen hidden">
+        <div class="game-info">
+            <div id="healthBar">Health: 100</div>
+            <button id="pauseButton">Pause</button>
+            <button id="inGameMenuButton">Menu</button>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <div class="controls">
+            <button id="shoot">Shoot</button>
+        </div>
+        <div id="joystickContainer">
+            </div>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+</html>
