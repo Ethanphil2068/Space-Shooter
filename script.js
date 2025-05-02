@@ -3,7 +3,9 @@ const ctx = canvas.getContext('2d');
 canvas.width = 600;
 canvas.height = 400;
 
-const shootButton = document.getElementById('shoot');
+const shootButton = document.getElementById('shootButton'); // Updated ID
+const leftButton = document.getElementById('leftButton'); // Get left button
+const rightButton = document.getElementById('rightButton'); // Get right button
 
 // Player
 const playerWidth = 30;
@@ -268,6 +270,18 @@ function gameLoop() {
 // Event listeners for buttons
 shootButton.addEventListener('click', shoot); // Button click also respects interval
 
+// Event listeners for direction buttons
+leftButton.addEventListener('mousedown', () => { keys.ArrowLeft = true; });
+leftButton.addEventListener('mouseup', () => { keys.ArrowLeft = false; });
+leftButton.addEventListener('touchstart', (event) => { keys.ArrowLeft = true; event.preventDefault(); });
+leftButton.addEventListener('touchend', () => { keys.ArrowLeft = false; });
+
+rightButton.addEventListener('mousedown', () => { keys.ArrowRight = true; });
+rightButton.addEventListener('mouseup', () => { keys.ArrowRight = false; });
+rightButton.addEventListener('touchstart', (event) => { keys.ArrowRight = true; event.preventDefault(); });
+rightButton.addEventListener('touchend', () => { keys.ArrowRight = false; });
+
+
 // Event listeners for keyboard controls
 document.addEventListener('keydown', (event) => {
     if (gameRunning && !isPaused) { // Only process input if game is running and not paused
@@ -309,6 +323,77 @@ canvas.addEventListener('mousedown', (event) => {
     if (gameRunning && !isPaused) { // Only shoot if game is running and not paused
         shoot();
     }
+});
+
+// Joystick elements
+const joystickContainer = document.getElementById('joystickContainer');
+const joystickBase = document.getElementById('joystickBase');
+const joystickKnob = document.getElementById('joystickKnob');
+
+let isDragging = false;
+let startX, startY;
+const joystickSize = 100; // Should match the size in CSS
+
+// Show joystick on touch devices (basic check)
+if ('ontouchstart' in window || navigator.maxTouchPoints) {
+    joystickContainer.style.display = 'block';
+}
+
+joystickBase.addEventListener('touchstart', (event) => {
+    isDragging = true;
+    const touch = event.touches[0];
+    const rect = joystickBase.getBoundingClientRect();
+    startX = rect.left + joystickSize / 2;
+    startY = rect.top + joystickSize / 2;
+    event.preventDefault(); // Prevent default touch behavior
+});
+
+document.addEventListener('touchmove', (event) => {
+    if (!isDragging || !gameRunning || isPaused) return;
+
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const maxDistance = joystickSize / 2;
+
+    if (distance > maxDistance) {
+        const angle = Math.atan2(deltaY, deltaX);
+        joystickKnob.style.left = maxDistance * Math.cos(angle) + 'px';
+        joystickKnob.style.top = maxDistance * Math.sin(angle) + 'px';
+    } else {
+        joystickKnob.style.left = deltaX + 'px';
+        joystickKnob.style.top = deltaY + 'px';
+    }
+
+    // Determine movement direction based on knob position
+    if (deltaX < -10) { // Threshold for left movement
+        keys.ArrowLeft = true;
+        keys.ArrowRight = false;
+    } else if (deltaX > 10) { // Threshold for right movement
+        keys.ArrowRight = true;
+        keys.ArrowLeft = false;
+    } else {
+        keys.ArrowLeft = false;
+        keys.ArrowRight = false;
+    }
+
+    // Optional: Add vertical movement if needed
+    // if (deltaY < -10) { /* move up */ }
+    // else if (deltaY > 10) { /* move down */ }
+
+    event.preventDefault(); // Prevent default touch behavior
+});
+
+document.addEventListener('touchend', () => {
+    isDragging = false;
+    // Reset knob position
+    joystickKnob.style.left = '50%';
+    joystickKnob.style.top = '50%';
+    // Reset player movement keys
+    keys.ArrowLeft = false;
+    keys.ArrowRight = false;
 });
 
 
